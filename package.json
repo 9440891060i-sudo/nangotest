@@ -1,0 +1,19 @@
+{
+  "name": "nango-connector-hub",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Simple UI for connecting Google Calendar, Meet, Analytics, Anthropic and OpenAI through Nango",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/index.js",
+    "mock": "node mock/nango-mock.js",
+    "demo": "node scripts/demo.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "@nangohq/frontend": "^0.71.14",
+    "@nangohq/node": "^0.71.14",
+    "express": "^4.21.2"
+  }
+}

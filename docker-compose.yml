@@ -1,0 +1,44 @@
+# Self-hosted Nango (free tier of features). Derived from the upstream
+# docker-compose.yaml in NangoHQ/nango; NOT run in the authoring environment, so
+# treat it as a starting point and compare with upstream before relying on it.
+#
+#   export NANGO_ENCRYPTION_KEY=$(openssl rand -base64 32)
+#   docker compose up -d
+#   Dashboard / API: http://localhost:3003   Connect UI: http://localhost:3009
+services:
+  nango-db:
+    image: postgres:16.0-alpine
+    environment:
+      POSTGRES_PASSWORD: nango
+      POSTGRES_USER: nango
+      POSTGRES_DB: nango
+    volumes:
+      - ./nango-data:/var/lib/postgresql/data
+
+  nango-redis:
+    image: redis:7.2.4
+
+  nango-server:
+    image: nangohq/nango-server:hosted
+    platform: linux/amd64
+    depends_on: [nango-db, nango-redis]
+    restart: always
+    ports:
+      - "3003:3003"
+      - "3009:3009"
+    environment:
+      NANGO_ENCRYPTION_KEY: ${NANGO_ENCRYPTION_KEY:?generate with openssl rand -base64 32}
+      NANGO_DB_HOST: nango-db
+      NANGO_DB_USER: nango
+      NANGO_DB_PASSWORD: nango
+      NANGO_DB_NAME: nango
+      NANGO_DB_SSL: "false"
+      RECORDS_DATABASE_URL: postgresql://nango:nango@nango-db:5432/nango
+      NANGO_REDIS_URL: redis://nango-redis:6379
+      NANGO_SERVER_URL: http://localhost:3003
+      NANGO_PUBLIC_SERVER_URL: http://localhost:3003
+      NANGO_PUBLIC_CONNECT_URL: http://localhost:3009
+      FLAG_SERVE_CONNECT_UI: "true"
+      FLAG_AUTH_ENABLED: "true"
+      NANGO_DASHBOARD_USERNAME: ${NANGO_DASHBOARD_USERNAME:-admin}
+      NANGO_DASHBOARD_PASSWORD: ${NANGO_DASHBOARD_PASSWORD:-change-me}
